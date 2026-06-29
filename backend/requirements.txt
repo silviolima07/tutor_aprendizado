@@ -1,0 +1,7 @@
+# requirements.txt
+uvicorn==0.24.0
+fastapi==0.111.0
+faker==20.1.0
+python-multipart==0.0.7
+pydantic==2.5.0
+sqlalchemy==2.0.23

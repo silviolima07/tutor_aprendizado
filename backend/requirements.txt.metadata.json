@@ -1,0 +1,4 @@
+{
+  "summary":  "Cria arquivo requirements.txt para backend com dependências FastAPI, uvicorn, faker, pydantic, sqlite3 (builtin)",
+  "updatedAt":  "2026-06-28T20:14:13.622129100Z"
+}
