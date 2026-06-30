@@ -10,7 +10,7 @@
 | Recurso | URL |
 |---------|-----|
 | 🌐 **Endpoint público** | *(link do HF Space — preencher após deploy)* |
-| 💻 **Repositório GitHub** | *(link do repositório — preencher)* |
+| 💻 **Repositório GitHub** | https://github.com/silviolima07/tutor_aprendizado |
 
 ---
 
