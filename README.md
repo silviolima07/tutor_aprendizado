@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🎓 Tutor de Aprendizado com IA Generativa
 
 > Plataforma de aprendizado personalizado que usa IA Generativa para criar trilhas de estudo sob medida, curar conteúdos de múltiplas fontes e adaptar o ritmo ao perfil do aluno.
@@ -230,3 +231,22 @@ tutor_aprendizado/
 **Antigravity IDE** (baseado no Google Gemini — modelo Claude Sonnet via interface do Gemini Advanced)
 
 O desenvolvimento foi feito inteiramente através de prompts em linguagem natural no IDE. Todas as telas, componentes, endpoints e o Dockerfile foram gerados pelo agente com supervisão e ajustes manuais pontuais documentados na seção "O que não funcionou".
+=======
+# tutor_aprendizado
+Uma aplicação para auxiliar o aluno no aprendizado de assuntos diversos.
+
+
+<img width="766" height="345" alt="image" src="https://github.com/user-attachments/assets/f4ad4f85-59db-4d06-877e-4ab8b434e87c" />
+
+<img width="839" height="393" alt="image" src="https://github.com/user-attachments/assets/8aa1a224-6fda-4fdd-ae8c-24eec1aa5818" />
+
+<img width="994" height="557" alt="image" src="https://github.com/user-attachments/assets/c098ac9b-59cc-43ba-aeb8-5116c63d9c7e" />
+
+<img width="834" height="522" alt="image" src="https://github.com/user-attachments/assets/d63c9b34-b53a-4295-8246-9da13650207e" />
+
+<img width="1146" height="583" alt="image" src="https://github.com/user-attachments/assets/b4888d3f-d536-4133-a2f8-e66ca966e504" />
+
+
+
+
+>>>>>>> b8b581ef1bc51c581aa7914224f1a8f6004a7f98
