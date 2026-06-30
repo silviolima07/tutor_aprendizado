@@ -5,7 +5,14 @@ const UserContext = createContext();
 export function UserProvider({ children }) {
   // `user` armazena o objeto completo: { id, name, role, avatar, history, ... }
   // Quando null, ninguém está logado
-  const [user, setUser] = useState(null); 
+  const [user, setUser] = useState(() => {
+    try {
+      const stored = localStorage.getItem('user');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
 
   // Atalho para manter compatibilidade com o resto do app que lia apenas 'role'
   const role = user ? user.role : null;

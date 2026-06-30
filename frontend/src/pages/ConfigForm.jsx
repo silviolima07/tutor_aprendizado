@@ -151,12 +151,25 @@ function Step1({ form, setForm, onNext }) {
 function StepLoading({ topic, sources }) {
   const [msgIndex, setMsgIndex] = useState(0);
 
+  const dynamicMessages = React.useMemo(() => {
+    if (sources && sources.length > 0) {
+      return [
+        `🔍 Buscando referências em ${sources.join(' e ')}...`,
+        `📰 Analisando os conteúdos mais relevantes...`,
+        `🤖 Agente de IA filtrando materiais didáticos...`,
+        `📚 Gerando ementa personalizada para você...`,
+        `✅ Quase pronto! Finalizando a curadoria...`,
+      ];
+    }
+    return LOADING_MESSAGES;
+  }, [sources]);
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setMsgIndex(prev => (prev + 1) % LOADING_MESSAGES.length);
+      setMsgIndex(prev => (prev + 1) % dynamicMessages.length);
     }, 900);
     return () => clearInterval(interval);
-  }, []);
+  }, [dynamicMessages]);
 
   return (
     <div className="flex flex-col items-center justify-center py-12 space-y-6 animate-[fadeIn_0.4s_ease-out]">
@@ -175,7 +188,7 @@ function StepLoading({ topic, sources }) {
 
       <div className="bg-gray-900 dark:bg-gray-950 text-green-400 font-mono text-sm rounded-xl p-4 w-full min-h-[80px] flex items-center">
         <span className="animate-pulse mr-2 text-green-300">▶</span>
-        <span className="transition-all">{LOADING_MESSAGES[msgIndex]}</span>
+        <span className="transition-all">{dynamicMessages[msgIndex]}</span>
       </div>
 
       {/* Mostra APENAS as fontes que o usuário selecionou */}
@@ -197,7 +210,7 @@ function StepLoading({ topic, sources }) {
 }
 
 // ── Etapa 2: Ementa gerada ────────────────────────────────────────────────────
-function Step2({ topic, onNext, onBack }) {
+function Step2({ topic, sources, onNext, onBack }) {
   return (
     <div className="space-y-5 animate-[fadeIn_0.3s_ease-out]">
       <div className="text-center">
@@ -224,7 +237,7 @@ function Step2({ topic, onNext, onBack }) {
       </div>
 
       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 text-sm text-blue-700 dark:text-blue-300">
-        💡 <strong>40 publicações</strong> do Reddit (r/MachineLearning) e <strong>15 artigos</strong> do Medium foram consultados para montar essa ementa.
+        💡 <strong>Análise concluída.</strong> Foram consultados e organizados conteúdos a partir de: <strong>{sources && sources.length > 0 ? sources.join(', ') : 'fontes diversas'}</strong>.
       </div>
 
       <div className="flex gap-3">
@@ -323,7 +336,7 @@ function Step3({ form, setForm, onSubmit, loading, onBack }) {
           onClick={onSubmit}
           className="w-2/3 py-3.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-bold rounded-xl hover:from-emerald-600 hover:to-green-700 transition-all shadow-lg shadow-emerald-500/30 disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          {loading ? '⏳ Salvando plano...' : '🚀 Começar a estudar!'}
+          {loading ? '⏳ Salvando plano...' : '💾 Salvar Planejamento'}
         </button>
       </div>
     </div>
@@ -384,7 +397,7 @@ function ConfigForm() {
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-gray-100 dark:border-gray-700">
         {step === 0 && <Step1 form={form} setForm={setForm} onNext={goToLoading} />}
         {step === 1 && <StepLoading topic={form.topic} sources={form.sources} />}
-        {step === 2 && <Step2 topic={form.topic} onNext={() => setStep(3)} onBack={() => setStep(0)} />}
+        {step === 2 && <Step2 topic={form.topic} sources={form.sources} onNext={() => setStep(3)} onBack={() => setStep(0)} />}
         {step === 3 && <Step3 form={form} setForm={setForm} onSubmit={handleSubmit} loading={submitting} onBack={() => setStep(2)} />}
       </div>
     </div>

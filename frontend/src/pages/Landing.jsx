@@ -11,23 +11,37 @@ function Landing() {
 
   useEffect(() => {
     if (showUsers) {
-      // Buscar usuários
-      fetch(`${API_URL}/mock/users`)
-        .then(res => res.json())
-        .then(data => setMockUsers(data.users || []))
-        .catch(err => {
-          console.error(err);
-          // Fallback se backend offline
-          setMockUsers([
-            { id: '1', name: 'Ana Silva', role: 'student', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Ana', knowledge_level: 'Iniciante', history: [] },
-            { id: '2', name: 'Carlos D.', role: 'student', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Carlos', knowledge_level: 'Avançado', history: [{topic: 'Python', grade: '90%', hours: 20}] }
-          ]);
-        });
+      // Ignorando o fetch para evitar que a tela fique travada carregando
+      setMockUsers([
+        { 
+          id: '1', name: 'Ana Silva', role: 'student', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Ana', knowledge_level: 'Iniciante', 
+          history: [
+            {topic: 'Introdução à Lógica', grade: '95%', hours: 10, completedAt: '01/06/2026', sources: ['YouTube', 'Medium']},
+            {topic: 'Lógica de Programação com Python', grade: '88%', hours: 15, completedAt: '15/06/2026', sources: ['YouTube', 'Documentação Oficial']}
+          ] 
+        },
+        { 
+          id: '2', name: 'Carlos D.', role: 'student', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Carlos', knowledge_level: 'Avançado', 
+          history: [
+            {topic: 'Python para IA', grade: '90%', hours: 20, completedAt: '15/05/2026', sources: ['Documentação Oficial', 'GitHub', 'Medium']},
+            {topic: 'Redes Neurais Convolucionais', grade: '92%', hours: 35, completedAt: '10/06/2026', sources: ['Artigos Acadêmicos', 'GitHub', 'Medium']},
+            {topic: 'Visão Computacional Avançada', grade: '85%', hours: 40, completedAt: '25/06/2026', sources: ['GitHub', 'Medium']}
+          ] 
+        },
+        { 
+          id: '3', name: 'Bento', role: 'student', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Jessica', knowledge_level: 'Intermediário', 
+          history: [
+            {topic: 'Machine Learning', grade: '85%', hours: 40, completedAt: '20/06/2026', sources: ['YouTube', 'Kaggle', 'Artigos']},
+            {topic: 'Engenharia de Features', grade: '94%', hours: 12, completedAt: '28/06/2026', sources: ['Medium', 'GitHub']}
+          ] 
+        }
+      ]);
     }
   }, [showUsers]);
 
   const handleStudentSelect = (u) => {
     setUser(u);
+    localStorage.setItem('user', JSON.stringify(u));
   };
 
   return (
@@ -92,12 +106,13 @@ function Landing() {
               Configure suas preferências e comece a aprender agora!
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                to="/config"
-                className="btn-glow px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+              <button
+                disabled
+                className="px-8 py-3 bg-gray-400 text-white font-semibold rounded-lg cursor-not-allowed opacity-70"
+                title="Funcionalidade da Etapa 2"
               >
-                Começar Agora
-              </Link>
+                Configurar Aprendizado (Etapa 2)
+              </button>
               <Link
                 to="/dashboard"
                 className="px-8 py-3 border-2 border-blue-600 text-blue-600 dark:text-blue-400 font-semibold rounded-lg hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors"
@@ -120,7 +135,8 @@ function Landing() {
               ))}
             </div>
           </>
-        ) : (
+        )}
+        {role === 'admin' && (
           <>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-xl mx-auto mb-8">
               Visão administrativa da plataforma. Acompanhe métricas de FinOps, LLMOps e uso global.

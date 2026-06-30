@@ -188,7 +188,7 @@ function StudentDashboard({ user, progress, lesson }) {
 
   if (!config && !hasHistory) return null;
 
-  const deadline = config.deadline ? new Date(config.deadline) : null;
+  const deadline = (config && config.deadline) ? new Date(config.deadline) : null;
   const daysLeft = deadline
     ? Math.max(0, Math.ceil((deadline - new Date()) / (1000 * 60 * 60 * 24)))
     : null;
@@ -203,7 +203,11 @@ function StudentDashboard({ user, progress, lesson }) {
       <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-2xl p-6 shadow-xl shadow-blue-500/20">
         <h2 className="text-2xl font-extrabold">👋 Olá, {user?.name || 'Estudante'}!</h2>
         <p className="text-blue-100 mt-1 text-sm">
-          Estudando: <strong>{config.topic}</strong> · Nível: {config.knowledgeLevel} · {config.dailyHours}h/dia
+          {config ? (
+            <>Estudando: <strong>{config.topic}</strong> · Nível: {config.knowledgeLevel} · {config.dailyHours}h/dia</>
+          ) : (
+            <>Bem-vindo de volta! Nenhuma trilha de estudo em andamento no momento.</>
+          )}
         </p>
       </div>
 
@@ -245,36 +249,7 @@ function StudentDashboard({ user, progress, lesson }) {
         <p className="text-xs text-gray-400 mt-2">{progress?.completed_lessons}/{progress?.total_lessons} aulas completadas</p>
       </div>
 
-      {/* Próxima aula */}
-      {lesson && (
-        <div className="card-hover bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md border-l-4 border-blue-500 border border-gray-100 dark:border-gray-700">
-          <h3 className="text-base font-bold text-gray-800 dark:text-white mb-1">📖 Próxima Aula</h3>
-          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2">{lesson.title} — {lesson.content}</p>
-          <div className="flex gap-3 flex-wrap">
-            <Link
-              id="btn-start-lesson"
-              to={`/lesson/${lesson.id}`}
-              className="btn-glow px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold"
-            >
-              Iniciar Aula
-            </Link>
-            <Link
-              id="btn-start-quiz"
-              to={`/quiz/${lesson.id}`}
-              className="px-5 py-2.5 border-2 border-blue-500 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors text-sm font-semibold"
-            >
-              Fazer Quiz
-            </Link>
-            <Link
-              id="btn-view-progress"
-              to="/progress"
-              className="px-5 py-2.5 border-2 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm font-semibold"
-            >
-              Meu Progresso →
-            </Link>
-          </div>
-        </div>
-      )}
+      {/* Seção Próxima Aula removida (ficará para a Etapa 2) */}
 
       {/* Badges */}
       {progress?.badges && Array.isArray(progress.badges) && progress.badges.length > 0 && (
@@ -304,11 +279,14 @@ function StudentDashboard({ user, progress, lesson }) {
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mt-2">
               <div>
                 <h4 className="text-lg font-bold text-gray-800 dark:text-white">{config.topic}</h4>
-                <p className="text-sm text-gray-500">{config.knowledgeLevel} • {config.dailyHours}h/dia</p>
+                <p className="text-sm text-gray-500">{config.knowledgeLevel} • {config.dailyHours}h/dia • {Array.isArray(config.sources) ? config.sources.join(', ') : 'Fontes selecionadas'}</p>
               </div>
-              <Link to="/progress" className="btn-glow px-4 py-2 bg-blue-600 text-white rounded-lg font-medium text-sm text-center">
-                Continuar Estudos
-              </Link>
+              <div className="text-right">
+                <span className="inline-block bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 px-4 py-2 rounded-lg font-medium text-sm text-center border border-gray-200 dark:border-gray-600 cursor-not-allowed" title="A integração com LLMs ocorrerá na Etapa 2">
+                  🔒 Iniciar (Etapa 2)
+                </span>
+                <p className="text-xs text-gray-400 mt-1 max-w-[150px]">O conteúdo das aulas interativas será implementado futuramente.</p>
+              </div>
             </div>
           </div>
         </section>
@@ -318,9 +296,9 @@ function StudentDashboard({ user, progress, lesson }) {
       <section>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Histórico de Estudos</h3>
-          <Link to="/config" className="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1">
-            + Nova Trilha
-          </Link>
+          <span className="text-sm font-bold text-gray-400 dark:text-gray-500 cursor-not-allowed flex items-center gap-1" title="Disponível na Etapa 2">
+            + Nova Trilha (Etapa 2)
+          </span>
         </div>
         <div className="space-y-4">
           {!hasHistory ? (
@@ -333,6 +311,9 @@ function StudentDashboard({ user, progress, lesson }) {
                 <div>
                   <p className="font-bold text-gray-800 dark:text-gray-200">{study.topic}</p>
                   <p className="text-xs text-gray-500 mt-1">Concluído em {study.completedAt} · {study.hours} horas de dedicação</p>
+                  {study.sources && (
+                    <p className="text-xs text-indigo-500 dark:text-indigo-400 mt-1 font-medium">Fontes consultadas: {Array.isArray(study.sources) ? study.sources.join(', ') : 'Múltiplas fontes'}</p>
+                  )}
                 </div>
                 <div className="mt-2 sm:mt-0 flex items-center gap-3">
                   <div className="text-right">
@@ -361,25 +342,27 @@ function Dashboard() {
   useEffect(() => {
     async function fetchData() {
       try {
-        // Busca dados do progresso/aula (com fallback silencioso)
-        const [progressRes, lessonRes] = await Promise.allSettled([
-          fetch(`${API_URL}/mock/progress`),
-          fetch(`${API_URL}/mock/lesson`),
-        ]);
-
-        if (progressRes.status === 'fulfilled' && progressRes.value.ok)
-          setProgress(await progressRes.value.json());
-        if (lessonRes.status === 'fulfilled' && lessonRes.value.ok)
-          setLesson(await lessonRes.value.json());
+        // Dados de mock em memória para evitar travamento em fetch caso backend esteja indisponível
+        if (role === 'student') {
+          setProgress({
+            completed_lessons: 5,
+            total_lessons: 12,
+            percentual_acertos_global: 85,
+            badges: ['Iniciante Rápido', '5 Dias Seguidos']
+          });
+        }
 
         // Busca finops para admin
         if (role === 'admin') {
           try {
-            const finopsRes = await fetch(`${API_URL}/mock/finops`);
+            // timeout rápido para não prender a tela
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+            const finopsRes = await fetch(`${API_URL}/mock/finops`, { signal: controller.signal });
+            clearTimeout(timeoutId);
             if (finopsRes.ok) {
               setFinops(await finopsRes.json());
             }
-            // Se falhar, finops fica null e AdminDashboard usa MOCK_FINOPS
           } catch {
             // backend offline — AdminDashboard usa fallback local
           }
