@@ -4,15 +4,28 @@ import random
 
 fake = Faker()
 
-def gerar_usuario():
+def gerar_historico():
+    historico = []
+    num_cursos = random.randint(0, 3)
+    topicos = ['Lógica de Programação', 'Introdução ao Python', 'Data Science com Pandas', 'Machine Learning Básico', 'React para Iniciantes']
+    for i in range(num_cursos):
+        historico.append({
+            "topic": random.choice(topicos),
+            "completedAt": (datetime.now() - timedelta(days=random.randint(10, 200))).strftime("%d/%m/%Y"),
+            "grade": f"{random.randint(75, 100)}%",
+            "hours": random.randint(10, 60)
+        })
+    return historico
+
+def gerar_usuario(role="student"):
     return {
         "id": fake.uuid4(),
         "name": fake.name(),
         "email": fake.email(),
+        "role": role,
+        "avatar": f"https://api.dicebear.com/7.x/notionists/svg?seed={random.randint(1, 1000)}",
         "knowledge_level": random.choice(["Iniciante", "Intermediário", "Avançado"]),
-        "daily_hours": random.choice([1, 2, 3]),
-        "deadline": (datetime.now() + timedelta(weeks=random.choice([4, 8, 12]))).date().isoformat(),
-        "sources": random.sample(["GitHub", "Medium", "YouTube", "Artigos"], k=2)
+        "history": gerar_historico() if role == "student" else []
     }
 
 def gerar_interacoes(usuario_id):
@@ -31,5 +44,7 @@ def gerar_interacoes(usuario_id):
         })
     return interactions
 
-USUARIO = gerar_usuario()
-INTERACOES = gerar_interacoes(USUARIO["id"])
+# Gerar 4 alunos fictícios
+USUARIOS_MOCK = [gerar_usuario("student") for _ in range(4)]
+# Interações mock baseadas no primeiro aluno por padrão (retrocompatibilidade)
+INTERACOES = gerar_interacoes(USUARIOS_MOCK[0]["id"])

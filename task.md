@@ -1,14 +1,17 @@
 # Tarefas: Refatoração Admin vs Aluno
 
-- `[/]` **Dashboard Admin**
-  - `[ ]` Atualizar `/mock/finops` no backend (`routers.py`) para incluir métricas do sistema (Total de Alunos, Aproveitamento Global, Ranking de Fontes).
-  - `[ ]` Reescrever `Dashboard.jsx` para exibir apenas os cards do sistema quando o perfil for Admin (remover dados de estudante).
-- `[ ]` **Dashboard Aluno**
-  - `[ ]` Ocultar FinOps.
-  - `[ ]` Exibir saudação pessoal e métricas de estudo exclusivas do aluno.
-- `[ ]` **Wizard do Aluno (Onboarding)**
-  - `[ ]` Refatorar `ConfigForm.jsx` para um modelo de passos (Etapas).
-  - `[ ]` Etapa 1: Definir o que aprender e fontes.
-  - `[ ]` Etapa 2: Simular busca e mostrar ementa gerada baseada na escolha.
-  - `[ ]` Etapa 3: Definir Data Final de Estudos (Deadline).
-  - `[ ]` Salvar preferências simuladas para visualização no Progresso.
+- `[x]` **Dashboard Admin**
+  - `[x]` Atualizar `/mock/finops` no backend (`routers.py`) para incluir métricas do sistema (Total de Alunos, Aproveitamento Global, Ranking de Fontes). *(já estava feito)*
+  - `[x]` Reescrever `Dashboard.jsx` com componente `AdminDashboard` separado — exibe apenas métricas do sistema (sem dados de estudante).
+- `[x]` **Dashboard Aluno**
+  - `[x]` FinOps 100% oculto para o Aluno.
+  - `[x]` Saudação pessoal com nome, tema de estudo e nível.
+  - `[x]` Contagem de dias restantes até o prazo (deadline).
+  - `[x]` Redirecionamento automático para `/config` caso o aluno não tenha configurado.
+- `[x]` **Wizard do Aluno (Onboarding)**
+  - `[x]` Refatorar `ConfigForm.jsx` para um modelo de passos (Etapas).
+  - `[x]` Etapa 1: Definir o que aprender, nível e fontes.
+  - `[x]` Interlúdio: Tela de loading animada simulando o agente de IA buscando nas fontes.
+  - `[x]` Etapa 2: Ementa gerada pela IA (4 módulos, 12 aulas).
+  - `[x]` Etapa 3: Definir horas/dia e Data Final com slider e contagem regressiva.
+  - `[x]` Salvar preferências no localStorage para uso no Dashboard e Progress.

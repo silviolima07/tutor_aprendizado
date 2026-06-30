@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 
 function Header() {
-  const { role, setRole } = useUser();
+  const { role, setRole, user } = useUser();
   const [isDark, setIsDark] = useState(() => {
     // Check initial preference from localStorage or system
     if (localStorage.getItem('theme') === 'dark' || 
@@ -35,23 +35,39 @@ function Header() {
           </h1>
         </Link>
         <div className="flex items-center gap-6">
-          <nav className="flex gap-4 text-sm font-medium">
-            <Link to="/dashboard" className="hover:text-blue-200 transition-colors">Dashboard</Link>
-            <Link to="/progress" className="hover:text-blue-200 transition-colors">Progresso</Link>
-            <Link to="/config" className="hover:text-blue-200 transition-colors">Configurar</Link>
-          </nav>
+          {role && (
+            <nav className="flex gap-4 text-sm font-medium">
+              <Link to="/dashboard" className="hover:text-blue-200 transition-colors">Dashboard</Link>
+              {role === 'student' && (
+                <>
+                  <Link to="/progress" className="hover:text-blue-200 transition-colors">Progresso</Link>
+                  <Link to="/config" className="hover:text-blue-200 transition-colors">Nova Trilha</Link>
+                </>
+              )}
+            </nav>
+          )}
           
-          <div className="flex items-center gap-2 border-l border-white/20 pl-4 ml-2">
-            <span className="text-xs text-blue-200">Logado como:</span>
-            <select 
-              value={role} 
-              onChange={(e) => setRole(e.target.value)}
-              className="bg-blue-800/50 border border-blue-400 text-white text-xs rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-white"
-            >
-              <option value="student">Aluno</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
+          {role && (
+            <div className="flex items-center gap-3 border-l border-blue-400 pl-6 ml-2">
+              <div className="flex items-center gap-2">
+                {user?.avatar ? (
+                  <img src={user.avatar} alt="Avatar" className="w-8 h-8 rounded-full bg-white" />
+                ) : (
+                  <span className="text-xl">{role === 'student' ? '🧑‍🎓' : '🧑‍💻'}</span>
+                )}
+                <span className="text-sm font-semibold truncate max-w-[100px]">
+                  {user?.name ? user.name.split(' ')[0] : (role === 'student' ? 'Aluno' : 'Admin')}
+                </span>
+              </div>
+              <button 
+                onClick={() => setRole(null)}
+                className="text-xs bg-blue-800/50 hover:bg-blue-800 px-2 py-1 rounded transition-colors"
+                title="Trocar Perfil"
+              >
+                Sair
+              </button>
+            </div>
+          )}
 
           <button 
             onClick={toggleTheme} 

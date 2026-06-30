@@ -3,7 +3,7 @@ from typing import List, Dict, Any
 from pydantic import BaseModel
 
 # Importar dados faker mock (gerados na inicialização)
-from faker_mock import USUARIO, INTERACOES
+from faker_mock import USUARIOS_MOCK, INTERACOES
 
 router = APIRouter()
 
@@ -88,10 +88,15 @@ async def get_progress():
         "badges": ["first-quiz"],
     }
 
+@router.get("/mock/users")
+async def get_users():
+    """Retorna lista de alunos fictícios gerados via Faker."""
+    return {"users": USUARIOS_MOCK}
+
 @router.get("/mock/user")
 async def get_user():
-    """Usuário fictício gerado via Faker."""
-    return USUARIO
+    """Retrocompatibilidade: retorna o primeiro usuário fictício."""
+    return USUARIOS_MOCK[0]
 
 @router.get("/mock/interactions")
 async def get_interactions():
