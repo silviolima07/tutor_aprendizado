@@ -1,3 +1,5 @@
+<img width="1545" height="688" alt="image" src="https://github.com/user-attachments/assets/a6175808-06f0-42ca-97ef-d510095adba1" />
+
 # 🎓 Tutor de Aprendizado com IA Generativa
 
 > Plataforma de aprendizado personalizado que usa IA Generativa para criar trilhas de estudo sob medida, curar conteúdos de múltiplas fontes e adaptar o ritmo ao perfil do aluno.
@@ -227,6 +229,7 @@ tutor_aprendizado/
 
 ## 🤖 Agente de Codificação Utilizado
 
-**Antigravity IDE** (baseado no Google Gemini — modelo Claude Sonnet via interface do Gemini Advanced)
+**Antigravity IDE Version 2.1.1** (baseado no Google Gemini — modelo Claude Sonnet via interface do Gemini Advanced)
 
 O desenvolvimento foi feito inteiramente através de prompts em linguagem natural no IDE. Todas as telas, componentes, endpoints e o Dockerfile foram gerados pelo agente com supervisão e ajustes manuais pontuais documentados na seção "O que não funcionou".
+A estratégia de codificação alternou entre o Claude 4.6 Opus (Thinking), para arquitetura e lógicas de maior complexidade, e o Claude 4.6 Sonnet (Thinking), para refatoração e implementação de componentes. A alternância foi gerenciada dinamicamente conforme a disponibilidade de cota de cada modelo, garantindo a continuidade do desenvolvimento sem interrupções.
