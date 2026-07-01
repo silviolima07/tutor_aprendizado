@@ -230,7 +230,7 @@ tutor_aprendizado/
   <img width="215" height="148" alt="Logo Antigravity" src="https://github.com/user-attachments/assets/84b305cb-62de-4664-8224-e2388a44dfcd" />
 </p>
 
-**Antigravity IDE Version 2.1.1** (baseado no Google Gemini — modelo Claude Sonnet via interface do Gemini Advanced)
+**Antigravity IDE Version 2.1.1**
 
 O desenvolvimento foi feito inteiramente através de prompts em linguagem natural no IDE. Todas as telas, componentes, endpoints e o Dockerfile foram gerados pelo agente com supervisão e ajustes manuais pontuais documentados na seção "O que não funcionou".
 
