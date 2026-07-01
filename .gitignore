@@ -26,3 +26,6 @@ backend/static/
 .DS_Store
 *.log
 .env
+
+# image
+frontend/src/assets/cerebro_ia.png
