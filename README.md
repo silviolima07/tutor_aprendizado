@@ -224,12 +224,14 @@ tutor_aprendizado/
 ├── .gitignore
 └── README.md
 ```
-
 ---
-
 ## 🤖 Agente de Codificação Utilizado
+<p align="center">
+  <img width="215" height="148" alt="Logo Antigravity" src="https://github.com/user-attachments/assets/84b305cb-62de-4664-8224-e2388a44dfcd" />
+</p>
 
 **Antigravity IDE Version 2.1.1** (baseado no Google Gemini — modelo Claude Sonnet via interface do Gemini Advanced)
 
 O desenvolvimento foi feito inteiramente através de prompts em linguagem natural no IDE. Todas as telas, componentes, endpoints e o Dockerfile foram gerados pelo agente com supervisão e ajustes manuais pontuais documentados na seção "O que não funcionou".
+
 A estratégia de codificação alternou entre o Claude 4.6 Opus (Thinking), para arquitetura e lógicas de maior complexidade, e o Claude 4.6 Sonnet (Thinking), para refatoração e implementação de componentes. A alternância foi gerenciada dinamicamente conforme a disponibilidade de cota de cada modelo, garantindo a continuidade do desenvolvimento sem interrupções.
