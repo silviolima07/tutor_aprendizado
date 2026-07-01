@@ -230,6 +230,3 @@ tutor_aprendizado/
 **Antigravity IDE** (baseado no Google Gemini — modelo Claude Sonnet via interface do Gemini Advanced)
 
 O desenvolvimento foi feito inteiramente através de prompts em linguagem natural no IDE. Todas as telas, componentes, endpoints e o Dockerfile foram gerados pelo agente com supervisão e ajustes manuais pontuais documentados na seção "O que não funcionou".
-=======
-# tutor_aprendizado
-Uma aplicação para auxiliar o aluno no aprendizado de assuntos diversos.
