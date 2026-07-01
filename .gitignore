@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv/
+
+# Node / Frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Build do Vite (gerado automaticamente — não commitar)
+backend/static/
+
+# Arquivos gerados pelo Antigravity IDE
+*.metadata.json
+.system_generated/
+.notebook/
+
+# Misc
+.DS_Store
+*.log
+.env
