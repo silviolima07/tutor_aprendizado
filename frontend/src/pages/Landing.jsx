@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 
+import cerebroIA from '../assets/cerebro_ia.png';
+
 function Landing() {
   const { role, setRole, setUser } = useUser();
   const [showUsers, setShowUsers] = useState(false);
@@ -13,27 +15,27 @@ function Landing() {
     if (showUsers) {
       // Ignorando o fetch para evitar que a tela fique travada carregando
       setMockUsers([
-        { 
-          id: '1', name: 'Ana Silva', role: 'student', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Ana', knowledge_level: 'Iniciante', 
+        {
+          id: '1', name: 'Ana Silva', role: 'student', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Ana', knowledge_level: 'Iniciante',
           history: [
-            {topic: 'Introdução à Lógica', grade: '95%', hours: 10, completedAt: '01/06/2026', sources: ['YouTube', 'Medium']},
-            {topic: 'Lógica de Programação com Python', grade: '88%', hours: 15, completedAt: '15/06/2026', sources: ['YouTube', 'Documentação Oficial']}
-          ] 
+            { topic: 'Introdução à Lógica', grade: '95%', hours: 10, completedAt: '01/06/2026', sources: ['YouTube', 'Medium'] },
+            { topic: 'Lógica de Programação com Python', grade: '88%', hours: 15, completedAt: '15/06/2026', sources: ['YouTube', 'Documentação Oficial'] }
+          ]
         },
-        { 
-          id: '2', name: 'Carlos D.', role: 'student', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Carlos', knowledge_level: 'Avançado', 
+        {
+          id: '2', name: 'Carlos D.', role: 'student', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Carlos', knowledge_level: 'Avançado',
           history: [
-            {topic: 'Python para IA', grade: '90%', hours: 20, completedAt: '15/05/2026', sources: ['Documentação Oficial', 'GitHub', 'Medium']},
-            {topic: 'Redes Neurais Convolucionais', grade: '92%', hours: 35, completedAt: '10/06/2026', sources: ['Artigos Acadêmicos', 'GitHub', 'Medium']},
-            {topic: 'Visão Computacional Avançada', grade: '85%', hours: 40, completedAt: '25/06/2026', sources: ['GitHub', 'Medium']}
-          ] 
+            { topic: 'Python para IA', grade: '90%', hours: 20, completedAt: '15/05/2026', sources: ['Documentação Oficial', 'GitHub', 'Medium'] },
+            { topic: 'Redes Neurais Convolucionais', grade: '92%', hours: 35, completedAt: '10/06/2026', sources: ['Artigos Acadêmicos', 'GitHub', 'Medium'] },
+            { topic: 'Visão Computacional Avançada', grade: '85%', hours: 40, completedAt: '25/06/2026', sources: ['GitHub', 'Medium'] }
+          ]
         },
-        { 
-          id: '3', name: 'Bento', role: 'student', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Jessica', knowledge_level: 'Intermediário', 
+        {
+          id: '3', name: 'Bento', role: 'student', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Jessica', knowledge_level: 'Intermediário',
           history: [
-            {topic: 'Machine Learning', grade: '85%', hours: 40, completedAt: '20/06/2026', sources: ['YouTube', 'Kaggle', 'Artigos']},
-            {topic: 'Engenharia de Features', grade: '94%', hours: 12, completedAt: '28/06/2026', sources: ['Medium', 'GitHub']}
-          ] 
+            { topic: 'Machine Learning', grade: '85%', hours: 40, completedAt: '20/06/2026', sources: ['YouTube', 'Kaggle', 'Artigos'] },
+            { topic: 'Engenharia de Features', grade: '94%', hours: 12, completedAt: '28/06/2026', sources: ['Medium', 'GitHub'] }
+          ]
         }
       ]);
     }
@@ -47,11 +49,17 @@ function Landing() {
   return (
     <div className="page-enter flex flex-col items-center justify-center min-h-[70vh] text-center px-4">
       <div className="mb-8 w-full">
-        <span className="text-6xl mb-4 block">🚀</span>
+        <div className="flex justify-center mb-6 relative group">
+          <img src={cerebroIA} alt="Tutor de Inteligência Artificial"
+            className="w-full max-w-2xl max-h-64  object-contain drop-shadow-[0_0_20px_rgba(34,211,238,0.4)]"
+          />
+          <div className="absolute inset-0 w-full max-w-2xl max-h-64 bg-cyan-500/5 blur-2xl animate-pulse-fast -z-10" />        </div>
+
+
         <h2 className="text-4xl font-extrabold text-gray-800 dark:text-white mb-4">
           Bem-vindo ao Tutor de Aprendizado
         </h2>
-        
+
         {!role && !showUsers && (
           <>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-xl mx-auto mb-8">
