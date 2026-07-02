@@ -1,21 +1,9 @@
 from fastapi import APIRouter, HTTPException, Body
 from typing import List, Dict, Any
 from pydantic import BaseModel
-from datetime import datetime  # Adicionado para validação da data de agendamento
 
 # Importar dados faker mock (gerados na inicialização)
 from faker_mock import USUARIOS_MOCK, INTERACOES
-
-# Lista em memória para simular o banco de dados de agendamentos
-AGENDAMENTOS_MOCK = [
-    {
-        "topic": "Conceitos Básicos de RAG e Embeddings",
-        "dateTime": "2026-07-15T14:00",
-        "durationHours": 2,
-        "status": "Confirmado"
-    }
-]
-
 
 router = APIRouter()
 
@@ -30,12 +18,6 @@ class ConfigModel(BaseModel):
 class QuizAnswer(BaseModel):
     lesson_id: int
     answers: List[int]  # índices das opções escolhidas
-
-# Novo modelo para o agendamento de estudos
-class ScheduleModel(BaseModel):
-    topic: str
-    dateTime: str  # Formato esperado: "YYYY-MM-DDTHH:MM"
-    durationHours: int = 2
 
 # ---- Endpoints ----
 @router.post("/config")
@@ -104,13 +86,6 @@ async def get_progress():
         "total_lessons": 5,
         "percentual_acertos_global": 80,
         "badges": ["first-quiz"],
-        "upcoming_schedules": [
-            {
-                "event": "📚 Estudo: IA Generativa",
-                "schedule": "15/07/2026 às 14:00",
-                "duration_hours": 2
-            }
-        ]
     }
 
 @router.get("/mock/users")
@@ -185,36 +160,3 @@ async def get_finops():
         ],
         "trends": "Ementa gerada através de cruzamento vetorial de 40 publicações do Reddit (r/MachineLearning) e 15 artigos do Perplexity nas últimas 24h."
     }
-
-@router.post("/mock/schedule")
-async def create_schedule(payload: ScheduleModel):
-    """Simula o agendamento de uma sessão de estudos e salva na memória."""
-    try:
-        data_validada = datetime.fromisoformat(payload.dateTime)
-        
-        if data_validada < datetime.now():
-            raise HTTPException(status_code=400, detail="A data de agendamento não pode ser no passado.")
-        
-        # Estrutura o dado que será salvo
-        novo_agendamento = {
-            "topic": payload.topic,
-            "dateTime": payload.dateTime,
-            "durationHours": payload.durationHours,
-            "status": "Confirmado"
-        }
-        
-        # Salva na lista em memória
-        AGENDAMENTOS_MOCK.append(novo_agendamento)
-        
-        return {
-            "status": "success",
-            "message": "Sessão de estudos agendada com sucesso no Google Calendar!",
-            "details": novo_agendamento
-        }
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Formato de data e hora inválido. Use o padrão ISO (YYYY-MM-DDTHH:MM).")
-
-@router.get("/mock/schedules")
-async def get_schedules():
-    """Retorna a lista de todas as aulas agendadas pelo aluno."""
-    return {"schedules": AGENDAMENTOS_MOCK}        

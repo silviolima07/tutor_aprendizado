@@ -11,10 +11,10 @@ const MOCK_FINOPS = {
   total_students: 142,
   global_performance: 78,
   top_sources: [
-    { name: 'YouTube', percentage: 45 },
-    { name: 'Medium', percentage: 30 },
+    { name: 'YouTube',              percentage: 45 },
+    { name: 'Medium',               percentage: 30 },
     { name: 'Documentação Oficial', percentage: 15 },
-    { name: 'GitHub', percentage: 10 },
+    { name: 'GitHub',               percentage: 10 },
   ],
   trends: 'Ementa gerada através de cruzamento vetorial de 40 publicações do Reddit (r/MachineLearning) e 15 artigos do Perplexity nas últimas 24h.',
 };
@@ -26,6 +26,8 @@ const MOCK_MONTHLY_REPORT = [
   { month: 'Maio/2026', tokens: '2.4M', cost: '$25.10', activeStudents: 140 },
   { month: 'Junho/2026', tokens: '2.8M', cost: '$29.00', activeStudents: 142 },
 ];
+
+// O MOCK_STUDENT_HISTORY antigo foi removido em favor do user.history dinâmico do Faker.
 
 const API_URL = 'http://localhost:8000/api';
 
@@ -44,16 +46,19 @@ function MetricCard({ label, value, color, icon }) {
 
 // ── VISÃO DO ADMIN ────────────────────────────────────────────────────────────
 function AdminDashboard({ finops, backendOffline }) {
+  // Sempre usa os dados vindos do backend APENAS se estiverem completos; caso contrário, mock local
   const data = (finops && finops.total_students) ? finops : MOCK_FINOPS;
 
   return (
     <div className="page-enter mt-6 space-y-8 pb-20 max-w-5xl mx-auto">
+      {/* Aviso de modo offline */}
       {backendOffline && (
         <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-3 text-sm text-amber-700 dark:text-amber-300 flex items-center gap-2">
           ⚠️ <span>Backend offline — exibindo dados de demonstração. Inicie o servidor para dados reais.</span>
         </div>
       )}
 
+      {/* Cabeçalho Admin */}
       <div className="flex items-center gap-4">
         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-2xl shadow-lg shadow-indigo-500/30">
           🖥️
@@ -64,16 +69,18 @@ function AdminDashboard({ finops, backendOffline }) {
         </div>
       </div>
 
+      {/* Métricas Globais */}
       <section>
         <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">Métricas da Plataforma</h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <MetricCard label="Total de Alunos" value={data.total_students || 0} color="border-indigo-500" icon="👥" />
-          <MetricCard label="Aproveitamento Global" value={`${data.global_performance || 0}%`} color="border-emerald-500" icon="📈" />
-          <MetricCard label="Custo Acumulado" value={`$${Number(data.session_cost || 0).toFixed(2)}`} color="border-blue-500" icon="💰" />
-          <MetricCard label="Projeção Mensal" value={`$${Number(data.monthly_projection || 0).toFixed(2)}`} color="border-amber-500" icon="📊" />
+          <MetricCard label="Total de Alunos"      value={data.total_students || 0}               color="border-indigo-500"  icon="👥" />
+          <MetricCard label="Aproveitamento Global" value={`${data.global_performance || 0}%`}     color="border-emerald-500" icon="📈" />
+          <MetricCard label="Custo Acumulado"       value={`$${Number(data.session_cost || 0).toFixed(2)}`} color="border-blue-500"    icon="💰" />
+          <MetricCard label="Projeção Mensal"        value={`$${Number(data.monthly_projection || 0).toFixed(2)}`} color="border-amber-500" icon="📊" />
         </div>
       </section>
 
+      {/* Tokens */}
       <section>
         <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">Consumo de Tokens (LLMOps)</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -94,6 +101,7 @@ function AdminDashboard({ finops, backendOffline }) {
         </div>
       </section>
 
+      {/* Fontes mais acessadas */}
       <section>
         <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">Fontes de Dados Mais Acessadas</h3>
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 space-y-4">
@@ -115,6 +123,7 @@ function AdminDashboard({ finops, backendOffline }) {
         </div>
       </section>
 
+      {/* Histórico Mensal - Relatório Admin */}
       <section>
         <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">Relatório Mensal de Operação</h3>
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
@@ -145,9 +154,10 @@ function AdminDashboard({ finops, backendOffline }) {
         </div>
       </section>
 
+      {/* Trends */}
       {data.trends && (
         <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl p-4 text-sm text-indigo-700 dark:text-indigo-300">
-          🔬 <strong>Curadoria activa:</strong> {data.trends}
+          🔬 <strong>Curadoria ativa:</strong> {data.trends}
         </div>
       )}
     </div>
@@ -155,19 +165,21 @@ function AdminDashboard({ finops, backendOffline }) {
 }
 
 // ── VISÃO DO ALUNO ────────────────────────────────────────────────────────────
-function StudentDashboard({ user, progress, lesson, schedules }) {
+function StudentDashboard({ user, progress, lesson }) {
   const navigate = useNavigate();
-
+  
   let config = null;
   try {
     const raw = localStorage.getItem('studentConfig');
     if (raw) config = JSON.parse(raw);
-  } catch (e) {
+  } catch(e) {
     console.error('Erro ao ler studentConfig', e);
   }
 
+  // Se o aluno não configurou uma trilha atual E não tem histórico, sugere fortemente ir pro config.
+  // Caso tenha histórico, mostramos o histórico e um botão para nova trilha.
   const hasHistory = user?.history && user.history.length > 0;
-
+  
   useEffect(() => {
     if (!config && !hasHistory) {
       navigate('/config');
@@ -184,22 +196,6 @@ function StudentDashboard({ user, progress, lesson, schedules }) {
   const progressPct = progress
     ? Math.round((progress.completed_lessons / progress.total_lessons) * 100)
     : 0;
-
-  // Função auxiliar para converter strings ISO em datas legíveis no padrão BR
-  const formatarData = (isoString) => {
-    try {
-      const data = new Date(isoString);
-      return data.toLocaleString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }) + ' h';
-    } catch {
-      return isoString;
-    }
-  };
 
   return (
     <div className="page-enter mt-6 space-y-6 pb-20 max-w-4xl mx-auto">
@@ -253,6 +249,8 @@ function StudentDashboard({ user, progress, lesson, schedules }) {
         <p className="text-xs text-gray-400 mt-2">{progress?.completed_lessons}/{progress?.total_lessons} aulas completadas</p>
       </div>
 
+      {/* Seção Próxima Aula removida (ficará para a Etapa 2) */}
+
       {/* Badges */}
       {progress?.badges && Array.isArray(progress.badges) && progress.badges.length > 0 && (
         <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-md border border-gray-100 dark:border-gray-700">
@@ -267,7 +265,7 @@ function StudentDashboard({ user, progress, lesson, schedules }) {
         </div>
       )}
 
-      {/* Current Trail Status */}
+      {/* Current Trail Status - Somente se houver config atual */}
       {config && (
         <section>
           <div className="flex items-center justify-between mb-4">
@@ -293,37 +291,6 @@ function StudentDashboard({ user, progress, lesson, schedules }) {
           </div>
         </section>
       )}
-
-      {/* NOVA SEÇÃO: Aulas Agendadas (Google Calendar) */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">📅 Próximas Sessões Agendadas</h3>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-md border border-gray-100 dark:border-gray-700 space-y-3">
-          {!schedules || schedules.length === 0 ? (
-            <div className="p-6 text-center bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
-              <p className="text-sm text-gray-500 dark:text-gray-400">Nenhuma sessão de estudos reservada no calendário.</p>
-            </div>
-          ) : (
-            schedules.map((item, idx) => (
-              <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg bg-gray-50 dark:bg-gray-700/30 border border-gray-100 dark:border-gray-700 hover:border-blue-300 transition-colors">
-                <div>
-                  <p className="font-bold text-gray-800 dark:text-white text-sm sm:text-base">{item.topic}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Horário: {formatarData(item.dateTime)} · Duração esperada: {item.durationHours}h
-                  </p>
-                </div>
-                <div className="mt-2 sm:mt-0 flex items-center gap-3">
-                  <span className="px-2.5 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded text-xs font-bold border border-emerald-200 dark:border-emerald-800/20">
-                    {item.status || "Confirmado"}
-                  </span>
-                  <span className="text-xl" title="Sincronizado com Google Calendar">🗓️</span>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </section>
 
       {/* Histórico Anterior */}
       <section>
@@ -370,12 +337,12 @@ function Dashboard() {
   const [progress, setProgress] = useState(null);
   const [lesson, setLesson] = useState(null);
   const [finops, setFinops] = useState(null);
-  const [schedules, setSchedules] = useState([]); // Novo Estado para as sessões agendadas
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       try {
+        // Dados de mock em memória para evitar travamento em fetch caso backend esteja indisponível
         if (role === 'student') {
           setProgress({
             completed_lessons: 5,
@@ -383,34 +350,12 @@ function Dashboard() {
             percentual_acertos_global: 85,
             badges: ['Iniciante Rápido', '5 Dias Seguidos']
           });
-
-          // Faz a busca dinâmica dos agendamentos salvos na memória do FastAPI
-          try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 2000);
-            const schedulesRes = await fetch(`${API_URL}/mock/schedules`, { signal: controller.signal });
-            clearTimeout(timeoutId);
-
-            if (schedulesRes.ok) {
-              const data = await schedulesRes.json();
-              setSchedules(data.schedules || []);
-            }
-          } catch (e) {
-            console.error('Backend offline para agendamentos - Usando mock local de demonstração', e);
-            // Fallback de desenvolvimento caso o backend caia/esteja reiniciando
-            setSchedules([
-              {
-                topic: "Conceitos Básicos de RAG e Embeddings",
-                dateTime: "2026-07-15T14:00",
-                durationHours: 2,
-                status: "Confirmado"
-              }
-            ]);
-          }
         }
 
+        // Busca finops para admin
         if (role === 'admin') {
           try {
+            // timeout rápido para não prender a tela
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 2000);
             const finopsRes = await fetch(`${API_URL}/mock/finops`, { signal: controller.signal });
@@ -452,7 +397,7 @@ function Dashboard() {
     return <AdminDashboard finops={finops} backendOffline={!finops} />;
   }
 
-  return <StudentDashboard user={contextUser} progress={progress} lesson={lesson} schedules={schedules} />;
+  return <StudentDashboard user={contextUser} progress={progress} lesson={lesson} />;
 }
 
 export default Dashboard;
