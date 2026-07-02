@@ -35,7 +35,7 @@ O **Tutor de Aprendizado** é uma plataforma web que resolve esse problema em tr
 
 ### Fluxo de Atividades
 <div align="center">
-  <img src="frontend/src/assets/fluxo.png" alt="Fluxo de Login" width="500"/>
+  <img src="frontend/src/assets/fluxo.png" alt="Fluxo de Login" width="600"/>
 </div>
 
 
