@@ -34,7 +34,7 @@ O **Tutor de Aprendizado** é uma plataforma web que resolve esse problema em tr
 4. **Chatbot com RAG simulado:** Dentro de cada aula, o aluno pode tirar dúvidas com um chatbot que cita a fonte específica da resposta (ex: `Fonte: Vídeo aula (02:15)`), simulando o comportamento de um sistema de Recuperação Aumentada por Geração (RAG).
 
 ### Fluxo de Autenticação
-
+![Fluxo de Login e Perfil](frontend/src/assets/fluxo.png)
 
 
 ### Como a IA Será Integrada no Futuro
