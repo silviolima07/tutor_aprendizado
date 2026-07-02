@@ -29,7 +29,9 @@ O **Tutor de Aprendizado** é uma plataforma web que resolve esse problema em tr
 
 2. **Trilha de aprendizado estruturada:** Dashboard com progresso, aulas com vídeo + resumo + materiais complementares, quiz de fixação com correção automática e sistema de badges para gamificação.
 
-3. **Chatbot com RAG simulado:** Dentro de cada aula, o aluno pode tirar dúvidas com um chatbot que cita a fonte específica da resposta (ex: `Fonte: Vídeo aula (02:15)`), simulando o comportamento de um sistema de Recuperação Aumentada por Geração (RAG).
+3. **Agendamento de Atividade:** Aluno pode agendar dia e hora dedicados aos estudos e receber lembretes.
+
+4. **Chatbot com RAG simulado:** Dentro de cada aula, o aluno pode tirar dúvidas com um chatbot que cita a fonte específica da resposta (ex: `Fonte: Vídeo aula (02:15)`), simulando o comportamento de um sistema de Recuperação Aumentada por Geração (RAG).
 
 ### Como a IA Será Integrada no Futuro
 
