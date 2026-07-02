@@ -43,6 +43,7 @@ Esta versão usa dados **simulados (mock)**. Na versão com IA real, cada compon
 | Resumo de vídeo | Texto fixo | Whisper (transcrição) + LLM (sumarização) |
 | Chatbot | Regras por palavras-chave | RAG com embeddings + ChromaDB + GPT-4o |
 | Quiz | Perguntas fixas | LLM gerando questões a partir do conteúdo da aula |
+| Agendamemento | Texto fixo | Uso do API do Google Calendar |
 
 A arquitetura foi desenhada com essa evolução em mente: cada endpoint do backend tem um prefixo `/mock/` que será substituído por chamadas reais ao LLM na etapa seguinte.
 
