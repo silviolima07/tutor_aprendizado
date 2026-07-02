@@ -35,9 +35,20 @@ O **Tutor de Aprendizado** é uma plataforma web que resolve esse problema em tr
 
 ### Fluxo de Atividades
 <div align="center">
-  <img src="frontend/src/assets/fluxo.png" alt="Fluxo de Login" width="600"/>
+  <img src="frontend/src/assets/fluxo.png" alt="Fluxo de Login" width="700"/>
 </div>
-
+<p>
+  <br>
+  <b>Login</b><br>
+  O fluxo inicia pelo login através do email do usuário.<br> 
+  <b>Admin</b><br>Se for como Administrador, terá a disposição o dashboard para controle de custos, desempenho e fontes mais procuradas.<br>
+  <b>Aluno</b><br>
+  Se for como aluno e nao tiver conta, deve cadastrar um email do gmail para acesso. <br>Se tiver conta, irá ter a disposição a opção de iniciar um novo estudo ou ver o dashboard com o histórico do que já estudou.<br>
+<b>Recursos</b><br>
+  Se tiver atividades no histórico pode visualizar o que já estudou.<br>
+  Ao iniciar um novo estudo, pode agendar dia e hora dedicadas ao estudo.<br>
+  Pode consultar um chatbot para tirar dúvidas do que já foi visto.
+  </p>
 
 ### Como a IA Será Integrada no Futuro
 
