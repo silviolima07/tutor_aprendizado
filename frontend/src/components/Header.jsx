@@ -6,8 +6,8 @@ function Header() {
   const { role, setRole, user } = useUser();
   const [isDark, setIsDark] = useState(() => {
     // Check initial preference from localStorage or system
-    if (localStorage.getItem('theme') === 'dark' || 
-       (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    if (localStorage.getItem('theme') === 'dark' ||
+      (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       return true;
     }
     return false;
@@ -46,7 +46,7 @@ function Header() {
               )}
             </nav>
           )}
-          
+
           {role && (
             <div className="flex items-center gap-3 border-l border-blue-400 pl-6 ml-2">
               <div className="flex items-center gap-2">
@@ -59,8 +59,8 @@ function Header() {
                   {user?.name ? user.name.split(' ')[0] : (role === 'student' ? 'Aluno' : 'Admin')}
                 </span>
               </div>
-              <button 
-                onClick={() => setRole(null)}
+              <button
+                onClick={() => { localStorage.removeItem('user'); localStorage.removeItem('role'); setRole(null) }}
                 className="text-xs bg-blue-800/50 hover:bg-blue-800 px-2 py-1 rounded transition-colors"
                 title="Trocar Perfil"
               >
@@ -69,8 +69,8 @@ function Header() {
             </div>
           )}
 
-          <button 
-            onClick={toggleTheme} 
+          <button
+            onClick={toggleTheme}
             className="p-2 rounded-full hover:bg-white/20 transition-colors ml-2"
             title="Alternar Tema"
           >
