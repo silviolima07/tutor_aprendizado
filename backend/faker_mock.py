@@ -17,16 +17,36 @@ def gerar_historico():
         })
     return historico
 
-def gerar_usuario(role="student"):
-    return {
-        "id": fake.uuid4(),
-        "name": fake.name(),
-        "email": fake.email(),
-        "role": role,
-        "avatar": f"https://api.dicebear.com/7.x/notionists/svg?seed={random.randint(1, 1000)}",
-        "knowledge_level": random.choice(["Iniciante", "Intermediário", "Avançado"]),
-        "history": gerar_historico() if role == "student" else []
+# Usuários fixos para consistência com o frontend (Landing.jsx)
+USUARIOS_MOCK = [
+    {
+        "id": "1",
+        "name": "Ana Silva",
+        "email": "ana.silva@example.com",
+        "role": "student",
+        "avatar": "https://api.dicebear.com/7.x/notionists/svg?seed=Ana",
+        "knowledge_level": "Iniciante",
+        "history": gerar_historico()
+    },
+    {
+        "id": "2",
+        "name": "Carlos D.",
+        "email": "carlos.d@example.com",
+        "role": "student",
+        "avatar": "https://api.dicebear.com/7.x/notionists/svg?seed=Carlos",
+        "knowledge_level": "Avançado",
+        "history": gerar_historico()
+    },
+    {
+        "id": "3",
+        "name": "Bento",
+        "email": "bento@example.com",
+        "role": "student",
+        "avatar": "https://api.dicebear.com/7.x/notionists/svg?seed=Bento",
+        "knowledge_level": "Intermediário",
+        "history": gerar_historico()
     }
+]
 
 def gerar_interacoes(usuario_id):
     interactions = []
@@ -44,7 +64,5 @@ def gerar_interacoes(usuario_id):
         })
     return interactions
 
-# Gerar 4 alunos fictícios
-USUARIOS_MOCK = [gerar_usuario("student") for _ in range(4)]
 # Interações mock baseadas no primeiro aluno por padrão (retrocompatibilidade)
 INTERACOES = gerar_interacoes(USUARIOS_MOCK[0]["id"])

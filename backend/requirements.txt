@@ -5,3 +5,6 @@ faker==20.1.0
 python-multipart==0.0.7
 pydantic==2.5.0
 sqlalchemy==2.0.23
+litellm>=1.0.0
+ddgs>=0.5.0
+python-dotenv>=1.0.0

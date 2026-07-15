@@ -1,15 +1,13 @@
-// ConfigForm.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import { useUser } from '../context/UserContext';
 
 const API_URL = 'http://localhost:8000/api';
 
 const SOURCE_OPTIONS = [
-  { id: 'Medium', icon: '✍️', label: 'Medium', color: 'border-green-400 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300' },
-  { id: 'YouTube', icon: '▶️', label: 'YouTube', color: 'border-red-400 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300' },
-  { id: 'Documentação Oficial', icon: '📄', label: 'Documentação', color: 'border-blue-400 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' },
+  { id: 'Medium',              icon: '✍️', label: 'Medium',               color: 'border-green-400 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300' },
+  { id: 'YouTube',             icon: '▶️', label: 'YouTube',              color: 'border-red-400 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300' },
+  { id: 'Documentação Oficial', icon: '📄', label: 'Documentação',        color: 'border-blue-400 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' },
 ];
 
 // Mensagens rotativas exibidas durante a busca da IA
@@ -23,10 +21,10 @@ const LOADING_MESSAGES = [
 
 // Ementa gerada simulada pela IA
 const GENERATED_CURRICULUM = [
-  { module: 'Módulo 1', title: 'Fundamentos e Conceitos Base', lessons: 3, source: 'YouTube + Docs' },
-  { module: 'Módulo 2', title: 'Prática Guiada com Exemplos Reais', lessons: 4, source: 'GitHub + Medium' },
-  { module: 'Módulo 3', title: 'Técnicas Avançadas e Boas Práticas', lessons: 3, source: 'Artigos + Docs' },
-  { module: 'Módulo 4', title: 'Projeto Final Integrador', lessons: 2, source: 'GitHub' },
+  { module: 'Módulo 1', title: 'Fundamentos e Conceitos Base',        lessons: 3, source: 'YouTube + Docs' },
+  { module: 'Módulo 2', title: 'Prática Guiada com Exemplos Reais',   lessons: 4, source: 'GitHub + Medium' },
+  { module: 'Módulo 3', title: 'Técnicas Avançadas e Boas Práticas',  lessons: 3, source: 'Artigos + Docs' },
+  { module: 'Módulo 4', title: 'Projeto Final Integrador',            lessons: 2, source: 'GitHub' },
 ];
 
 function StepIndicator({ current, total }) {
@@ -34,12 +32,13 @@ function StepIndicator({ current, total }) {
     <div className="flex items-center justify-center gap-2 mb-8">
       {Array.from({ length: total }).map((_, i) => (
         <React.Fragment key={i}>
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${i < current
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${
+            i < current
               ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/40'
               : i === current
-                ? 'bg-blue-500 text-white ring-4 ring-blue-300/50'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-400'
-            }`}>
+              ? 'bg-blue-500 text-white ring-4 ring-blue-300/50'
+              : 'bg-gray-200 dark:bg-gray-700 text-gray-400'
+          }`}>
             {i < current ? '✓' : i + 1}
           </div>
           {i < total - 1 && (
@@ -62,17 +61,7 @@ function Step1({ form, setForm, onNext }) {
     }));
   };
 
-  const isValid = form.topic.trim().length > 2 && form.sources.length > 0;
-
-  // Ao montar o componente, garante que Medium está sempre selecionado
-  useEffect(() => {
-    if (!form.sources.includes('Medium')) {
-      setForm(prev => ({
-        ...prev,
-        sources: ['Medium']
-      }));
-    }
-  }, []);
+  const isValid = form.topic.trim().length > 2;
 
   return (
     <div className="space-y-6 animate-[fadeIn_0.3s_ease-out]">
@@ -104,10 +93,11 @@ function Step1({ form, setForm, onNext }) {
               type="button"
               id={`level-${level.toLowerCase()}`}
               onClick={() => setForm(prev => ({ ...prev, knowledgeLevel: level }))}
-              className={`py-2.5 rounded-xl text-sm font-semibold border-2 transition-all ${form.knowledgeLevel === level
+              className={`py-2.5 rounded-xl text-sm font-semibold border-2 transition-all ${
+                form.knowledgeLevel === level
                   ? 'border-blue-500 bg-blue-500 text-white shadow-md shadow-blue-500/30'
                   : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-blue-300'
-                }`}
+              }`}
             >
               {level === 'Iniciante' ? '🌱 ' : level === 'Intermediário' ? '🌿 ' : '🌳 '}{level}
             </button>
@@ -115,45 +105,30 @@ function Step1({ form, setForm, onNext }) {
         </div>
       </div>
 
-      {/* Fontes - Apenas Medium habilitado */}
+      {/* Fontes */}
       <div>
-        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-          Onde devemos pesquisar? <span className="text-green-500">(Medium é a fonte disponível)</span>
-        </label>
+        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Onde devemos pesquisar? <span className="text-blue-500">(escolha ao menos uma)</span></label>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {SOURCE_OPTIONS.map(src => {
             const selected = form.sources.includes(src.id);
-            const isMedium = src.id === 'Medium';
-            const isDisabled = !isMedium;
-
             return (
               <button
                 key={src.id}
                 type="button"
                 id={`source-${src.id.toLowerCase()}`}
-                onClick={() => isMedium && toggleSource(src.id)}
-                disabled={isDisabled}
-                className={`flex items-center gap-2 px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all ${selected
+                onClick={() => toggleSource(src.id)}
+                className={`flex items-center gap-2 px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all ${
+                  selected
                     ? `${src.color} border-current shadow-sm`
-                    : 'border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400'
-                  } ${isDisabled ? 'opacity-50 cursor-not-allowed grayscale-[0.3]' : 'hover:border-gray-300'}`}
-                title={isDisabled ? 'Apenas Medium está disponível no momento' : ''}
+                    : 'border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-gray-300'
+                }`}
               >
                 <span className="text-lg">{src.icon}</span>
                 <span>{src.label}</span>
                 {selected && <span className="ml-auto text-xs">✓</span>}
-                {isDisabled && (
-                  <span className="ml-auto text-[10px] text-gray-400 bg-gray-200 dark:bg-gray-700 px-1.5 py-0.5 rounded">
-                    🔒
-                  </span>
-                )}
               </button>
             );
           })}
-        </div>
-        {/* Mensagem informativa */}
-        <div className="mt-2 text-xs text-gray-400 dark:text-gray-500 text-center">
-          💡 Atualmente, a busca está configurada apenas para Medium.
         </div>
       </div>
 
@@ -218,13 +193,13 @@ function StepLoading({ topic, sources }) {
       <div className="flex flex-wrap gap-2 justify-center">
         {sources.length > 0
           ? sources.map(s => {
-            const src = SOURCE_OPTIONS.find(o => o.id === s);
-            return (
-              <span key={s} className={`px-3 py-1 rounded-full text-xs font-semibold border ${src?.color || 'border-gray-300 text-gray-500'}`}>
-                {src?.icon} {s}
-              </span>
-            );
-          })
+              const src = SOURCE_OPTIONS.find(o => o.id === s);
+              return (
+                <span key={s} className={`px-3 py-1 rounded-full text-xs font-semibold border ${src?.color || 'border-gray-300 text-gray-500'}`}>
+                  {src?.icon} {s}
+                </span>
+              );
+            })
           : <span className="text-xs text-gray-400">Buscando em todas as fontes...</span>
         }
       </div>
@@ -232,41 +207,48 @@ function StepLoading({ topic, sources }) {
   );
 }
 
-// ── Etapa 2: Links dos artigos ────────────────────────────────────────────────────
-function Step2({ topic, sources, links, modelName, onNext, onBack }) {
+// ── Etapa 2: Ementa gerada ────────────────────────────────────────────────────
+function Step2({ topic, sources, track, modelName, onNext, onBack }) {
   return (
     <div className="space-y-5 animate-[fadeIn_0.3s_ease-out]">
       <div className="text-center">
         <span className="text-5xl">✨</span>
-        <h3 className="text-xl font-bold text-gray-800 dark:text-white mt-3">Artigos do Medium Encontrados</h3>
+        <h3 className="text-xl font-bold text-gray-800 dark:text-white mt-3">Ementa Gerada pela IA</h3>
       </div>
 
-      <div className="text-sm text-gray-600 dark:text-gray-400 mb-2 text-center">
-        Modelo usado: <span className="font-medium text-blue-600 dark:text-blue-400">{modelName || 'groq/llama-3.3-70b-versatile'}</span>
-      </div>
+        <div className="text-sm text-gray-600 dark:text-gray-400 mb-2 text-center">
+          Modelo usado: <span className="font-medium text-blue-600 dark:text-blue-400">{modelName || 'groq/llama-3.3-70b-versatile'}</span>
+        </div>
 
-      <div className="bg-white dark:bg-gray-700/60 rounded-xl p-4 border border-gray-100 dark:border-gray-600 shadow-sm space-y-3 max-h-64 overflow-y-auto">
-        {links && links.length > 0 ? (
-          links.map((url, idx) => (
-            <a
-              key={idx}
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-600/50 rounded-lg border border-gray-100 dark:border-gray-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group"
-            >
-              <span className="text-green-500 font-bold text-lg">📄</span>
-              <span className="flex-1 text-blue-600 dark:text-blue-400 text-sm break-all group-hover:underline">{url}</span>
-              <span className="text-gray-400 text-xs">Abrir →</span>
-            </a>
-          ))
-        ) : (
-          <p className="text-gray-500 dark:text-gray-400 text-center py-4">Nenhum artigo encontrado.</p>
-        )}
+      <div className="bg-white dark:bg-gray-700/60 rounded-xl p-4 border border-gray-100 dark:border-gray-600 shadow-sm overflow-y-auto max-h-64">
+        <div className="prose prose-sm dark:prose-invert max-w-none text-gray-800 dark:text-gray-100">
+          <ReactMarkdown
+            components={{
+              a: ({ href, children }) => (
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-200 break-all"
+                >
+                  {children}
+                </a>
+              ),
+              h1: ({ children }) => <h1 className="text-lg font-bold mt-3 mb-1">{children}</h1>,
+              h2: ({ children }) => <h2 className="text-base font-bold mt-3 mb-1">{children}</h2>,
+              h3: ({ children }) => <h3 className="text-sm font-bold mt-2 mb-1">{children}</h3>,
+              p:  ({ children }) => <p className="mb-2 text-sm leading-relaxed">{children}</p>,
+              li: ({ children }) => <li className="ml-4 list-disc text-sm mb-1">{children}</li>,
+              strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+            }}
+          >
+            {track || 'Erro ao gerar trilha.'}
+          </ReactMarkdown>
+        </div>
       </div>
 
       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 text-sm text-blue-700 dark:text-blue-300">
-        💡 <strong>Busca concluída.</strong> Foram encontrados <strong>{links?.length || 0} artigos</strong> no Medium sobre <strong>{topic}</strong>.
+        💡 <strong>Análise concluída.</strong> Foram consultados e organizados conteúdos a partir de: <strong>{sources && sources.length > 0 ? sources.join(', ') : 'fontes diversas'}</strong>.
       </div>
 
       <div className="flex gap-3">
@@ -307,7 +289,23 @@ function Step3({ form, setForm, onSubmit, loading, onBack }) {
       <div className="text-center">
         <span className="text-5xl">📅</span>
         <h3 className="text-xl font-bold text-gray-800 dark:text-white mt-3">Defina sua Data Final</h3>
-        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Até quando você quer concluir seus estudos?</p>
+        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Quando você quer concluir?</p>
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Horas de estudo por dia</label>
+        <div className="flex items-center gap-4">
+          <input
+            id="config-daily-hours"
+            type="range"
+            min="1"
+            max="8"
+            value={form.dailyHours}
+            onChange={e => setForm(prev => ({ ...prev, dailyHours: Number(e.target.value) }))}
+            className="flex-1 accent-blue-500"
+          />
+          <span className="w-16 text-center font-bold text-blue-600 dark:text-blue-400 text-lg">{form.dailyHours}h/dia</span>
+        </div>
       </div>
 
       <div>
@@ -325,7 +323,7 @@ function Step3({ form, setForm, onSubmit, loading, onBack }) {
       {days !== null && days > 0 && (
         <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl p-4 text-center shadow-lg shadow-blue-500/30">
           <p className="text-3xl font-extrabold">{days} dias</p>
-          <p className="text-blue-100 text-sm mt-1">para concluir seus estudos</p>
+          <p className="text-blue-100 text-sm mt-1">para concluir · {form.dailyHours}h por dia</p>
         </div>
       )}
 
@@ -359,69 +357,38 @@ function Step3({ form, setForm, onSubmit, loading, onBack }) {
 // ── Componente principal ──────────────────────────────────────────────────────
 function ConfigForm() {
   const navigate = useNavigate();
-  const { user } = useUser();
-  const [hasActiveTrack, setHasActiveTrack] = useState(false);
-
-  useEffect(() => {
-    const storageKey = `studentConfig_${user?.id || 1}`;
-    const raw = localStorage.getItem(storageKey);
-    if (raw) {
-      setHasActiveTrack(true);
-    }
-  }, [user]);
-
-  if (hasActiveTrack) {
-    return (
-      <div className="page-enter max-w-xl mx-auto mt-8 pb-20 px-4 text-center">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700">
-          <span className="text-5xl">⚠️</span>
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-white mt-4">Trilha em Andamento</h2>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">
-            Você já possui uma trilha de estudos ativa. Conclua a trilha atual antes de iniciar um novo plano.
-          </p>
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="mt-6 px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all shadow-lg"
-          >
-            Ver Minha Trilha Atual
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   // 0=step1, 1=loading, 2=step2(ementa), 3=step3(deadline)
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
     topic: '',
     knowledgeLevel: 'Iniciante',
+    dailyHours: 2,
     deadline: '',
-    sources: ['Medium'], // Inicia com Medium selecionado
+    sources: [],
   });
-  const [generatedLinks, setGeneratedLinks] = useState([]);
+  const [generatedTrack, setGeneratedTrack] = useState('');
   const [modelName, setModelName] = useState(''); // new state for model
   const [submitting, setSubmitting] = useState(false);
 
-const goToLoading = async () => {
+  const goToLoading = async () => {
     setStep(1);
     try {
-      const payload = { ...form, user_id: user?.id || 1 };
       const response = await fetch(`${API_URL}/study-track`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(form)
       });
       const data = await response.json();
       if (data.status === 'success') {
-        setGeneratedLinks(data.links || []);
-        setModelName(data.usage?.model || '');
+        setGeneratedTrack(data.track);
+        setModelName(data.usage?.model || ''); // capture model name
       } else {
-        setGeneratedLinks([]);
+        setGeneratedTrack('Houve um erro ao gerar a trilha.');
         setModelName('');
       }
     } catch (err) {
       console.error(err);
-      setGeneratedLinks([]);
+      setGeneratedTrack('Erro de comunicação com o servidor.');
       setModelName('');
     }
     setStep(2);
@@ -430,16 +397,16 @@ const goToLoading = async () => {
   const handleSubmit = () => {
     setSubmitting(true);
     setTimeout(() => {
-      localStorage.setItem(`studentConfig_${user?.id || 1}`, JSON.stringify({
+      localStorage.setItem('studentConfig', JSON.stringify({
         ...form,
-        links: generatedLinks,
+        curriculum: generatedTrack,
         configuredAt: new Date().toISOString(),
       }));
       navigate('/dashboard');
     }, 600);
   };
 
-  const stepLabels = ['Intenção', 'Ementa', 'Prazo'];
+  const stepLabels = ['Intenção', 'IA buscando', 'Ementa', 'Prazo'];
 
   return (
     <div className="page-enter max-w-xl mx-auto mt-8 pb-20 px-4">
@@ -457,7 +424,7 @@ const goToLoading = async () => {
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-gray-100 dark:border-gray-700">
         {step === 0 && <Step1 form={form} setForm={setForm} onNext={goToLoading} />}
         {step === 1 && <StepLoading topic={form.topic} sources={form.sources} />}
-        {step === 2 && <Step2 topic={form.topic} sources={form.sources} links={generatedLinks} modelName={modelName} onNext={() => setStep(3)} onBack={() => setStep(0)} />}
+        {step === 2 && <Step2 topic={form.topic} sources={form.sources} track={generatedTrack} modelName={modelName} onNext={() => setStep(3)} onBack={() => setStep(0)} />}
         {step === 3 && <Step3 form={form} setForm={setForm} onSubmit={handleSubmit} loading={submitting} onBack={() => setStep(2)} />}
       </div>
     </div>

@@ -12,6 +12,7 @@ function Header() {
     }
     return false;
   });
+  const hasActiveTrack = user ? !!localStorage.getItem(`studentConfig_${user.id}`) : false;
 
   useEffect(() => {
     if (isDark) {
@@ -41,7 +42,7 @@ function Header() {
               {role === 'student' && (
                 <>
                   <Link to="/progress" className="hover:text-blue-200 transition-colors">Progresso</Link>
-                  <Link to="/config" className="hover:text-blue-200 transition-colors">Nova Trilha</Link>
+                  {!hasActiveTrack && <Link to="/config" className="hover:text-blue-200 transition-colors">Nova Trilha</Link>}
                 </>
               )}
             </nav>

@@ -3,11 +3,11 @@ import { useUser } from '../context/UserContext';
 
 const API_URL = 'http://localhost:8000/api';
 
-function Chatbot({ lessonId }) {
+function Chatbot({ topic, links }) {
   const { role } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: 'tutor', content: 'Olá! Sou seu Tutor de IA. Como posso ajudar com esta aula?' }
+    { role: 'tutor', content: `Olá! Sou seu Tutor de IA sobre "${topic}". Pergunte qualquer dúvida e eu indicarei o melhor artigo para você estudar!` }
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -31,26 +31,34 @@ function Chatbot({ lessonId }) {
     setIsTyping(true);
 
     try {
-      const res = await fetch(`${API_URL}/mock/chat`, {
+      const res = await fetch(`${API_URL}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMessage.content, lesson_id: parseInt(lessonId) || 0 })
+        body: JSON.stringify({
+          topic,
+          links,
+          question: userMessage.content,
+          user_id: parseInt(localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).id : 1)
+        })
       });
       const data = await res.json();
-      
-      // Simulate a small delay for natural typing feel
+
       setTimeout(() => {
         setMessages((prev) => [
-          ...prev, 
-          { 
-            role: 'tutor', 
+          ...prev,
+          {
+            role: 'tutor',
             content: data.reply,
-            metadata: data.metadata 
+            recommendedUrl: data.recommended_url,
+            metadata: data.usage ? {
+              rag_source: 'Artigos da trilha (similaridade por embeddings)',
+              usage: data.usage
+            } : null
           }
         ]);
         setIsTyping(false);
       }, 800);
-      
+
     } catch (err) {
       console.error('Chat erro:', err);
       setIsTyping(false);
@@ -64,7 +72,7 @@ function Chatbot({ lessonId }) {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="fixed bottom-6 right-6 p-4 bg-blue-600 text-white rounded-full shadow-2xl hover:bg-blue-700 hover:scale-110 transition-all z-50 flex items-center justify-center focus:outline-none"
-        title="Falar com Tutor"
+        title="Falar com Tutor IA"
       >
         <span className="text-2xl">{isOpen ? '✖️' : '🤖'}</span>
       </button>
@@ -74,14 +82,14 @@ function Chatbot({ lessonId }) {
         <div className="fixed bottom-24 right-6 w-80 sm:w-96 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col z-50 overflow-hidden animate-fade-in" style={{ height: '550px', maxHeight: '75vh' }}>
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">🤖</span>
-              <div>
-                <h3 className="font-bold">Tutor IA</h3>
-                <p className="text-xs text-blue-200">Sempre online</p>
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-2xl shrink-0">🤖</span>
+              <div className="min-w-0">
+                <h3 className="font-bold truncate">Tutor IA</h3>
+                <p className="text-xs text-blue-200 truncate">{topic}</p>
               </div>
             </div>
-            <button onClick={() => setIsOpen(false)} className="text-white hover:text-gray-300">
+            <button onClick={() => setIsOpen(false)} className="text-white hover:text-gray-300 shrink-0 ml-2">
               ✖
             </button>
           </div>
@@ -91,31 +99,48 @@ function Chatbot({ lessonId }) {
             {messages.map((msg, idx) => (
               <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[90%] rounded-2xl px-4 py-3 ${
-                  msg.role === 'user' 
-                    ? 'bg-blue-600 text-white rounded-tr-none' 
+                  msg.role === 'user'
+                    ? 'bg-blue-600 text-white rounded-tr-none'
                     : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 rounded-tl-none border border-gray-200 dark:border-gray-700 shadow-sm'
                 }`}>
-                  <p className="text-sm leading-relaxed">{msg.content}</p>
-                  
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+
+                  {/* Link recomendado em destaque */}
+                  {msg.recommendedUrl && (
+                    <a
+                      href={msg.recommendedUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-xl text-sm font-medium text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-all"
+                    >
+                      <span>📖</span>
+                      <span className="flex-1 truncate">Artigo recomendado</span>
+                      <span className="text-emerald-500 font-bold">Abrir →</span>
+                    </a>
+                  )}
+
                   {/* Metadata Section (RAG & Ops) */}
                   {msg.metadata && (
-                    <div className="mt-3 pt-2 border-t border-gray-200 dark:border-gray-700 text-xs flex flex-col gap-1">
-                      {/* RAG - Visível para todos */}
-                      <span className="text-blue-600 dark:text-blue-400 font-medium">
-                        🔗 Fonte: {msg.metadata.rag_source}
-                      </span>
-                      
-                      {/* LLMOps - Visível apenas para admin */}
-                      {role === 'admin' && (
-                        <div className="bg-gray-100 dark:bg-gray-900 rounded p-2 mt-1 space-y-1 text-gray-600 dark:text-gray-400">
-                          <p className="font-bold text-gray-700 dark:text-gray-300">🔍 Qualidade (Judge)</p>
-                          <p>Embasamento: {(msg.metadata.judge_metrics.groundedness * 100).toFixed(0)}% | Coerência: {(msg.metadata.judge_metrics.relevance * 100).toFixed(0)}%</p>
-                          <p className="font-bold text-gray-700 dark:text-gray-300 mt-1">⚙️ Custo</p>
-                          <p>${msg.metadata.tokens.cost.toFixed(4)} ({msg.metadata.tokens.prompt} in / {msg.metadata.tokens.completion} out)</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                      <div className="mt-3 pt-2 border-t border-gray-200 dark:border-gray-700 text-xs flex flex-col gap-1">
+                        <span className="text-blue-600 dark:text-blue-400 font-medium">
+                          🔗 Fonte: {msg.metadata.rag_source}
+                        </span>
+
+                        {msg.metadata.usage && (
+                          <span className="text-green-600 dark:text-green-400 font-medium">
+                            📦 Modelo: {msg.metadata.usage.model}
+                          </span>
+                        )}
+
+                        {/* LLMOps - Visível apenas para admin */}
+                        {role === 'admin' && msg.metadata.usage && (
+                          <div className="bg-gray-100 dark:bg-gray-900 rounded p-2 mt-1 space-y-1 text-gray-600 dark:text-gray-400">
+                            <p className="font-bold text-gray-700 dark:text-gray-300">⚙️ Custo</p>
+                            <p>${msg.metadata.usage.cost.toFixed(4)} ({msg.metadata.usage.prompt_tokens} in / {msg.metadata.usage.completion_tokens} out)</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
                 </div>
               </div>
             ))}
@@ -137,10 +162,10 @@ function Chatbot({ lessonId }) {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Digite sua dúvida..."
+              placeholder="Digite sua dúvida sobre o tema..."
               className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white text-sm rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <button 
+            <button
               type="submit"
               disabled={!input.trim() || isTyping}
               className="bg-blue-600 text-white rounded-full p-2 w-10 h-10 flex items-center justify-center hover:bg-blue-700 disabled:opacity-50 transition-colors"

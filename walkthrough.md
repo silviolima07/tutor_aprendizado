@@ -49,3 +49,17 @@ Acesse: **http://localhost:5173**
 2. **Visão do Administrador (Ops):** Altere o select no cabeçalho para **Admin**.
    - Volte para o **Dashboard**. O painel cinza e roxo/verde de **FinOps e Tracing** agora estará visível, exibindo tokens e custos.
    - Abra o **Chatbot** novamente, envie uma mensagem e veja o rodapé super detalhado mostrando a avaliação de qualidade do modelo e os centavos gastos na requisição!
+
+---
+
+## Modificações Adicionais (Medium, FinOps & Segurança) 🚀
+
+- **Formulário de Configuração Dinâmico (`ConfigForm.jsx`)**
+  - O formulário agora aceita apenas a fonte **Medium** como opção para trilhas de estudos.
+  - Mensagens de carregamento foram ajustadas para o contexto exclusivo do Medium.
+- **Integração Backend (`routers.py` e `search_service.py`)**
+  - A pesquisa restringe a busca ao Medium e retorna no máximo **3 artigos relacionados**.
+- **Serviço de LLM (`llm_service.py`)**
+  - Carregamento de chaves do arquivo `.env` implementado, mantendo a flexibilidade de chaves.
+- **Painel de Controle Administrador (`AdminDashboard.jsx` e `tracking_service.py`)**
+  - Dashboard extrai informações em tempo real de `tutor.db` (SQLite), apresentando custos gerais e segmentação por aluno com base na requisição do LLM.

@@ -5,39 +5,34 @@ import { useUser } from '../context/UserContext';
 import cerebroIA from '../assets/cerebro_ia.png';
 
 function Landing() {
-  const { role, setRole, setUser } = useUser();
+  const { user, role, setRole, setUser } = useUser();
   const [showUsers, setShowUsers] = useState(false);
   const [mockUsers, setMockUsers] = useState([]);
+  const [userHasTrack, setUserHasTrack] = useState(false);
 
   const API_URL = 'http://localhost:8000/api';
 
   useEffect(() => {
+    if (user) {
+      const storageKey = `studentConfig_${user.id}`;
+      const raw = localStorage.getItem(storageKey);
+      setUserHasTrack(!!raw);
+    } else {
+      setUserHasTrack(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
     if (showUsers) {
-      // Ignorando o fetch para evitar que a tela fique travada carregando
-      setMockUsers([
-        {
-          id: '1', name: 'Ana Silva', role: 'student', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Ana', knowledge_level: 'Iniciante',
-          history: [
-            { topic: 'Introdução à Lógica', grade: '95%', hours: 10, completedAt: '01/06/2026', sources: ['YouTube', 'Medium'] },
-            { topic: 'Lógica de Programação com Python', grade: '88%', hours: 15, completedAt: '15/06/2026', sources: ['YouTube', 'Documentação Oficial'] }
-          ]
-        },
-        {
-          id: '2', name: 'Carlos D.', role: 'student', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Carlos', knowledge_level: 'Avançado',
-          history: [
-            { topic: 'Python para IA', grade: '90%', hours: 20, completedAt: '15/05/2026', sources: ['Documentação Oficial', 'GitHub', 'Medium'] },
-            { topic: 'Redes Neurais Convolucionais', grade: '92%', hours: 35, completedAt: '10/06/2026', sources: ['Artigos Acadêmicos', 'GitHub', 'Medium'] },
-            { topic: 'Visão Computacional Avançada', grade: '85%', hours: 40, completedAt: '25/06/2026', sources: ['GitHub', 'Medium'] }
-          ]
-        },
-        {
-          id: '3', name: 'Bento', role: 'student', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Jessica', knowledge_level: 'Intermediário',
-          history: [
-            { topic: 'Machine Learning', grade: '85%', hours: 40, completedAt: '20/06/2026', sources: ['YouTube', 'Kaggle', 'Artigos'] },
-            { topic: 'Engenharia de Features', grade: '94%', hours: 12, completedAt: '28/06/2026', sources: ['Medium', 'GitHub'] }
-          ]
-        }
-      ]);
+      fetch(`${API_URL}/students`)
+        .then(r => r.json())
+        .then(data => {
+          if (data.users) setMockUsers(data.users);
+        })
+        .catch(() => {
+          // fallback caso backend offline
+          setMockUsers([]);
+        });
     }
   }, [showUsers]);
 
@@ -72,6 +67,12 @@ function Landing() {
               >
                 <span className="text-2xl">🎓</span> Sou Aluno
               </button>
+              <Link
+                to="/register"
+                className="px-8 py-4 border-2 border-emerald-500 text-emerald-600 dark:text-emerald-400 font-bold rounded-xl hover:bg-emerald-50 dark:hover:bg-gray-800 transition-all flex items-center justify-center gap-3 text-lg hover:scale-105"
+              >
+                <span className="text-2xl">✨</span> Criar Conta
+              </Link>
               <button
                 onClick={() => setRole('admin')}
                 className="px-8 py-4 border-2 border-indigo-500 text-indigo-600 dark:text-indigo-400 font-bold rounded-xl hover:bg-indigo-50 dark:hover:bg-gray-800 transition-all flex items-center justify-center gap-3 text-lg hover:scale-105"
@@ -93,14 +94,18 @@ function Landing() {
                   ))}
                 </div>
               ) : (
-                mockUsers.map(u => (
-                  <div key={u.id} className="flex flex-col items-center gap-3 cursor-pointer group" onClick={() => handleStudentSelect(u)}>
-                    <div className="w-28 h-28 rounded-2xl bg-white dark:bg-gray-800 shadow-md border-4 border-transparent group-hover:border-blue-500 group-hover:scale-105 transition-all overflow-hidden flex items-center justify-center">
-                      <img src={u.avatar} alt={u.name} className="w-24 h-24" />
+                mockUsers.map(u => {
+                  const avatarUrl = u.avatar || `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(u.name)}`;
+                  return (
+                    <div key={u.id} className="flex flex-col items-center gap-3 cursor-pointer group" onClick={() => handleStudentSelect(u)}>
+                      <div className="w-28 h-28 rounded-2xl bg-white dark:bg-gray-800 shadow-md border-4 border-transparent group-hover:border-blue-500 group-hover:scale-105 transition-all overflow-hidden flex items-center justify-center">
+                        <img src={avatarUrl} alt={u.name} className="w-24 h-24" />
+                      </div>
+                      <span className="font-semibold text-gray-700 dark:text-gray-300 group-hover:text-blue-600">{u.name}</span>
+                      <span className="text-xs text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">ID: {u.id}</span>
                     </div>
-                    <span className="font-semibold text-gray-700 dark:text-gray-300 group-hover:text-blue-600">{u.name.split(' ')[0]}</span>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
             <button onClick={() => setShowUsers(false)} className="mt-10 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">← Voltar</button>
@@ -110,23 +115,31 @@ function Landing() {
         {role === 'student' && (
           <>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-xl mx-auto mb-8">
-              Um assistente inteligente que personaliza seu aprendizado com IA Generativa.
-              Configure suas preferências e comece a aprender agora!
+              {userHasTrack ? 'Continue seus estudos de onde parou!' : 'Um assistente inteligente que personaliza seu aprendizado com IA Generativa. Configure suas preferências e comece a aprender agora!'}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                disabled
-                className="px-8 py-3 bg-gray-400 text-white font-semibold rounded-lg cursor-not-allowed opacity-70"
-                title="Funcionalidade da Etapa 2"
-              >
-                Configurar Aprendizado (Etapa 2)
-              </button>
+              {!userHasTrack && (
+                <Link
+                  to="/config"
+                  className="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-colors"
+                  title="Configurar Aprendizado"
+                >
+                  Configurar Aprendizado
+                </Link>
+              )}
               <Link
                 to="/dashboard"
-                className="px-8 py-3 border-2 border-blue-600 text-blue-600 dark:text-blue-400 font-semibold rounded-lg hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors"
+                className={`px-8 py-3 font-semibold rounded-lg transition-colors ${!userHasTrack ? 'border-2 border-blue-600 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800' : 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 shadow-lg'}`}
               >
-                Ver Meu Dashboard
+                {userHasTrack ? '📚 Continuar Trilha Atual' : 'Ver Meu Dashboard'}
               </Link>
+            </div>
+
+            <div className="mt-8 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 text-left max-w-md mx-auto">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Logado como:</p>
+              <p className="font-semibold text-gray-800 dark:text-white">
+                {user?.name} <span className="text-gray-400 font-normal">(ID {user?.id})</span>
+              </p>
             </div>
 
             <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl w-full mx-auto">

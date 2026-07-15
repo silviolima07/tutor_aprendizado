@@ -1,10 +1,19 @@
-from fastapi import APIRouter, HTTPException, Body
+from fastapi import APIRouter, HTTPException, Body, Depends
 from typing import List, Dict, Any
 from pydantic import BaseModel
-from datetime import datetime  # Adicionado para validação da data de agendamento
+from datetime import datetime
+from sqlalchemy.orm import Session
+from database import get_db, User
+from services.search_service import SearchService
+from services.llm_service import LLMService
+from services.tracking_service import TrackingService
+from services.rag_service import RAGService
 
 # Importar dados faker mock (gerados na inicialização)
 from faker_mock import USUARIOS_MOCK, INTERACOES
+
+# Create a lookup dict for user names
+USER_NAME_LOOKUP = {u["id"]: u["name"] for u in USUARIOS_MOCK}
 
 # Lista em memória para simular o banco de dados de agendamentos
 AGENDAMENTOS_MOCK = [
@@ -23,13 +32,34 @@ router = APIRouter()
 class ConfigModel(BaseModel):
     topic: str
     knowledgeLevel: str
-    dailyHours: int
+    dailyHours: int = 2
     deadline: str
     sources: List[str]
+    user_id: int = 1
 
 class QuizAnswer(BaseModel):
     lesson_id: int
     answers: List[int]  # índices das opções escolhidas
+
+class CompletionQuiz(BaseModel):
+    topic: str
+    user_id: int = 1
+
+class CompletionAnswer(BaseModel):
+    topic: str
+    user_id: int = 1
+    selected: int  # índice da alternativa escolhida
+
+class ChatRequest(BaseModel):
+    topic: str
+    links: List[str]
+    question: str
+    user_id: int = 1
+
+class SummaryRequest(BaseModel):
+    topic: str
+    links: List[str]
+    user_id: int = 1
 
 # Novo modelo para o agendamento de estudos
 class ScheduleModel(BaseModel):
@@ -37,11 +67,142 @@ class ScheduleModel(BaseModel):
     dateTime: str  # Formato esperado: "YYYY-MM-DDTHH:MM"
     durationHours: int = 2
 
+class RegisterModel(BaseModel):
+    name: str
+    email: str
+    password: str
+
+class LoginModel(BaseModel):
+    email: str
+    password: str
+
 # ---- Endpoints ----
+@router.post("/register")
+async def register(payload: RegisterModel, db: Session = Depends(get_db)):
+    """Cadastra um novo aluno."""
+    existing = db.query(User).filter(User.email == payload.email).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Email já cadastrado.")
+    user = User(name=payload.name, email=payload.email, password=payload.password)
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return {"status": "success", "user": {"id": str(user.id), "name": user.name, "email": user.email, "role": "student"}}
+
+@router.post("/login")
+async def login(payload: LoginModel, db: Session = Depends(get_db)):
+    """Autentica um aluno por email e senha."""
+    user = db.query(User).filter(User.email == payload.email).first()
+    if not user or user.password != payload.password:
+        raise HTTPException(status_code=401, detail="Email ou senha inválidos.")
+    return {"status": "success", "user": {"id": str(user.id), "name": user.name, "email": user.email, "role": "student"}}
+
 @router.post("/config")
 async def set_config(config: ConfigModel):
     """Recebe as preferências do usuário e devolve‑as como confirmação."""
     return {"status": "recebido", "config": config}
+
+@router.post("/study-track")
+async def generate_study_track(config: ConfigModel, db: Session = Depends(get_db)):
+    """Gera uma trilha de estudos real buscando nas fontes selecionadas e orquestrando com a LLM."""
+    user_id = config.user_id
+    
+    # 1. Busca os materiais
+    search_results = SearchService.search_sources(
+        topic=config.topic,
+        sources=["Medium"], # Força o uso do Medium independente do frontend
+        max_results_per_source=3 # Retornar apenas 3 artigos
+    )
+    
+    # 2. Gera a trilha via LLM e loga o uso
+    llm_response = LLMService.generate_study_track(
+        topic=config.topic,
+        level=config.knowledgeLevel,
+        search_results=search_results,
+        user_id=user_id
+    )
+    
+    if "track" not in llm_response:
+        raise HTTPException(status_code=500, detail=llm_response.get("error", "Erro inesperado"))
+        # Continue with successful response
+    
+    medium_urls = [line.strip() for line in llm_response["track"].split('\n') if line.strip().startswith('http')]
+    
+    return {
+        "status": "success",
+        "topic": config.topic,
+        "links": medium_urls,
+        "usage": llm_response["usage"],
+        "search_results": search_results
+    }
+
+@router.post("/completion-quiz")
+async def generate_completion_quiz(payload: CompletionQuiz):
+    """Gera um quiz de 1 pergunta com 2 alternativas para conclusão da trilha."""
+    llm_response = LLMService.generate_quiz(
+        topic=payload.topic,
+        user_id=payload.user_id
+    )
+    
+    if "quiz" not in llm_response:
+        raise HTTPException(status_code=500, detail="Erro ao gerar quiz")
+    
+    return {
+        "status": "success",
+        "quiz": llm_response["quiz"],
+        "usage": llm_response["usage"]
+    }
+
+@router.post("/chat")
+async def chat_with_tutor(payload: ChatRequest, db: Session = Depends(get_db)):
+    """Responde dúvidas do aluno usando RAG: busca por similaridade nos artigos e indica o melhor link."""
+    rag_result = RAGService.query(
+        topic=payload.topic,
+        links=payload.links,
+        question=payload.question,
+        user_id=payload.user_id
+    )
+
+    llm_response = LLMService.generate_chat_response(
+        topic=payload.topic,
+        links=payload.links,
+        question=payload.question,
+        user_id=payload.user_id,
+        rag_result=rag_result
+    )
+
+    return {
+        "status": "success",
+        "reply": llm_response["reply"],
+        "recommended_url": llm_response.get("recommended_url"),
+        "usage": llm_response["usage"]
+    }
+
+@router.post("/summarize")
+async def generate_summary(payload: SummaryRequest):
+    """Gera um resumo em português de todos os artigos da trilha."""
+    links_content = {}
+    for url in payload.links:
+        content = RAGService._scrape_article(url)
+        links_content[url] = content if not content.startswith("[Erro") else "Conteúdo não disponível."
+
+    llm_response = LLMService.generate_summary(
+        topic=payload.topic,
+        links_content=links_content,
+        user_id=payload.user_id
+    )
+
+    return {
+        "status": "success",
+        "summary": llm_response["summary"],
+        "usage": llm_response["usage"]
+    }
+
+@router.get("/admin/metrics")
+async def get_admin_metrics(db: Session = Depends(get_db)):
+    """Retorna métricas reais de FinOps extraídas do SQLite."""
+    metrics = TrackingService.get_metrics(db)
+    return metrics
 
 @router.get("/mock/lesson")
 async def get_mock_lesson():
@@ -117,6 +278,28 @@ async def get_progress():
 async def get_users():
     """Retorna lista de alunos fictícios gerados via Faker."""
     return {"users": USUARIOS_MOCK}
+
+@router.get("/students")
+async def get_students(db: Session = Depends(get_db)):
+    """Retorna todos os alunos (mock + cadastrados) com IDs únicos."""
+    registered = db.query(User).all()
+    base_url = "https://api.dicebear.com/7.x/notionists/svg?seed="
+    male_seeds = ["Oliver", "Max", "Leo", "Jack", "Liam", "Noah"]
+    female_seeds = ["Mia", "Emma", "Sophie", "Ava", "Olivia", "Isabella"]
+    male_names = {"silvio", "joao", "bento", "carlos"}
+    male_idx = 0
+    female_idx = 0
+    all_users = []
+    for u in registered:
+        name_key = u.name.lower().split()[0]
+        if name_key in male_names:
+            avatar = base_url + male_seeds[male_idx % len(male_seeds)]
+            male_idx += 1
+        else:
+            avatar = base_url + female_seeds[female_idx % len(female_seeds)]
+            female_idx += 1
+        all_users.append({"id": str(u.id), "name": u.name, "email": u.email, "role": "student", "avatar": avatar})
+    return {"users": all_users}
 
 @router.get("/mock/user")
 async def get_user():
